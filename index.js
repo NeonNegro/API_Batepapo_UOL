@@ -51,7 +51,20 @@ app.post('/participants', async (req, res) => {
         return
       }
       participant.lastStatus =  Date.now();
-      const result = await db.collection('participants').insertOne(participant)
+      const result = await db.collection('participants').insertOne(participant);
+
+
+
+      const alert = {
+            from: participant,
+            to: 'Todos',
+            text: 'entra na sala...',
+            type: 'status',
+            time: dayjs(Date.now()).format('HH:mm:ss')
+      }
+
+      await db.collection('messages').insertOne(alert);
+
       res.sendStatus(201);
     } catch(err){
       sendError(res, e.ERROR_LOGIN);
@@ -156,7 +169,7 @@ app.post('/status', async (req,res) =>{
   }
 });
 
-app.put('messages/:id', async (req, res) => {
+app.put('/messages/:id', async (req, res) => {
 
   const user = req.headers.user;
 
@@ -165,8 +178,8 @@ app.put('messages/:id', async (req, res) => {
     return
   }
 
-  const {message} = req.body;
-  const validation = messageSchema.validate(message);
+  const newMessage = req.body;
+  const validation = messageSchema.validate(newMessage);
   if(validation.error){
     res.sendStatus(422);
     return
@@ -192,6 +205,7 @@ app.put('messages/:id', async (req, res) => {
       return
     }
 
+    message.text = newMessage.text;
     message.time = dayjs(Date.now()).format('HH:mm:ss');
     message.from = user; //------------------------------desnecessário, mas fiz conforme requisito
     await db.collection('messages').updateOne({ 
