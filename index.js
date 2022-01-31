@@ -15,21 +15,7 @@ dotenv.config;
 const TIME_LIMIT_TO_STAY = 10000;
 const TIME_TO_CHECK_AND_PURGE = 15000;
 
-
-// async function initMongo() {
-//  try{
-//   const mongoClient = new MongoClient(process.env.MONGO_URI);
-//   await mongoClient.connect();
-//   const db = mongoClient.db(process.env.MONGO_NAME)
-//   return { mongoClient, db }
-// } catch(err){
-//    console.log(err);
-//    console.log('error ao abrir conexao com o DB');
-// }
-// } (
-
-
-const mongoClient = new MongoClient('mongodb://localhost:27017');
+const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
 
 mongoClient.connect().then(()=>{
