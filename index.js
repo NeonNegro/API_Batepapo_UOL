@@ -117,7 +117,8 @@ app.get('/messages', async(req,res) =>{
     const messages = await db.collection('messages').find({
       $or: [
         {"to": {"$in": ["Todos", user]}},
-        {"from": user}
+        {"from": user},
+        {"type": "message"}
       ]
     }).toArray();
 
