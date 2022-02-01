@@ -10,10 +10,11 @@ const app = express();
 const port = 5000;
 app.use(express.json());
 app.use(cors());
-dotenv.config;
+dotenv.config();
 
 const TIME_LIMIT_TO_STAY = 10000;
 const TIME_TO_CHECK_AND_PURGE = 15000;
+console.log(process.env.MONGO_URI);
 
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
@@ -39,10 +40,8 @@ app.post('/participants', async (req, res) => {
       participant.lastStatus =  Date.now();
       const result = await db.collection('participants').insertOne(participant);
 
-
-
       const alert = {
-            from: participant,
+            from: participant.name,
             to: 'Todos',
             text: 'entra na sala...',
             type: 'status',
@@ -91,8 +90,7 @@ app.post('/messages', async (req, res) => {
 app.get('/participants', async (req, res) =>{
   
   try{
-      const participants = [];
-      participants.push(await db.collection('participants').find().toArray());
+      const participants = await db.collection('participants').find().toArray();
       res.send(participants);
   } catch(err) {
     res.status(500).send(err);
@@ -195,7 +193,7 @@ app.put('/messages/:id', async (req, res) => {
     message.time = dayjs(Date.now()).format('HH:mm:ss');
     message.from = user; //------------------------------desnecessário, mas fiz conforme requisito
     await db.collection('messages').updateOne({ 
-			_id: id 
+			_id: new ObjectId(id) 
 		}, { $set: message });
 				
 		res.sendStatus(200)
@@ -238,7 +236,7 @@ app.delete('/messages/:id', async (req,res) =>{
 });
 
 
-setInterval(removeInativeUsers,TIME_TO_CHECK_AND_PURGE)
+//setInterval(removeInativeUsers,TIME_TO_CHECK_AND_PURGE);
 
 async function removeInativeUsers(){
   try{
