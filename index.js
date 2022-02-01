@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import e from './errors.js';
 import { userSchema, messageSchema } from "./schemas.js";
 import dayjs from "dayjs";
+import { stripHtml } from "string-strip-html";
 
 const app = express();
 const port = 5000;
@@ -27,6 +28,9 @@ mongoClient.connect().then(()=>{
 app.post('/participants', async (req, res) => {
     try{
       const participant = req.body;
+      participant.name = stripHtml(participant.name).result.trim();
+
+
       const validation = userSchema.validate(participant);
       if(validation.error){
         res.sendStatus(422);
@@ -59,7 +63,9 @@ app.post('/participants', async (req, res) => {
 
 app.post('/messages', async (req, res) => {
   const message = req.body;
-  const user = req.headers.user;
+  message.to = stripHtml(message.to).result.trim();
+  message.text = stripHtml(message.text).result.trim();
+  const user = stripHtml(req.headers.user).result.trim();
   
   const validation = messageSchema.validate(message);
   if(validation.error){
@@ -236,7 +242,7 @@ app.delete('/messages/:id', async (req,res) =>{
 });
 
 
-//setInterval(removeInativeUsers,TIME_TO_CHECK_AND_PURGE);
+setInterval(removeInativeUsers,TIME_TO_CHECK_AND_PURGE);
 
 async function removeInativeUsers(){
   try{
