@@ -198,7 +198,7 @@ app.put('/messages/:id', async (req, res) => {
 
     message.text = newMessage.text;
     message.time = dayjs(Date.now()).format('HH:mm:ss');
-    message.from = user; //------------------------------desnecessário, mas fiz conforme requisito
+    message.from = user;
     await db.collection('messages').updateOne({ 
 			_id: new ObjectId(id) 
 		}, { $set: message });
